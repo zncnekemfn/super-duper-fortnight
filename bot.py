@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 TOKEN = os.environ["TG_TOKEN"]
 CHAT = os.environ["TG_CHAT"]
 TAG = "alexexplore0e-21"
-MIN_DESC = 50
+MIN_DESC = 0
 SOLO_AMAZON = True
 RSS = "https://www.chollometro.com/rss"
 SEEN = "seen.json"
