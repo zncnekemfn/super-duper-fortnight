@@ -5,7 +5,7 @@ TOKEN = os.environ["TG_TOKEN"]
 CHAT = os.environ["TG_CHAT"]
 TAG = "alexexplore0e-21"
 MIN_DESC = 0
-SOLO_AMAZON = True
+SOLO_AMAZON = False
 RSS = "https://www.chollometro.com/rss"
 SEEN = "seen.json"
 
