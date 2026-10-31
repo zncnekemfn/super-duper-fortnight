@@ -1,3 +1,4 @@
+
 import re, shutil, time, sys, os
 
 RUTA = sys.argv[1] if len(sys.argv) > 1 else "/opt/chivato/bot.py"
