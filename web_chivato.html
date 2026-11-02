@@ -156,6 +156,7 @@ const $=id=>document.getElementById(id);
 const eur=n=>Number(n).toFixed(2).replace(".",",")+" €";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function ago(ts){const m=Math.max(1,Math.round((Date.now()/1000-ts)/60));return m<60?`hace ${m} min`:m<1440?`hace ${Math.round(m/60)} h`:`hace ${Math.round(m/1440)} d`}
+function hora(ts){const d=new Date(ts*1000),p=n=>String(n).padStart(2,"0");return `${p(d.getHours())}:${p(d.getMinutes())} del ${p(d.getDate())}/${p(d.getMonth()+1)}`}
 function img(a){return `https://m.media-amazon.com/images/P/${a}.01._SCLZZZZZZZ_.jpg`}
 function card(o){
   const ah=o.antes>o.ahora?o.antes-o.ahora:0;
@@ -163,7 +164,7 @@ function card(o){
   <div class="cb"><div class="tt">${esc(o.t)}</div>
   <div class="pr"><span class="now">${eur(o.ahora)}</span><span class="old">${eur(o.antes)}</span></div>
   ${ah?`<div><span class="sv">Ahorras ${eur(ah)}</span></div>`:""}
-  <div class="meta">${ago(o.ts)}</div>
+  <div class="meta">Precio de ${hora(o.ts)} · ${ago(o.ts)}. Puede haber cambiado.</div>
   <div class="act"><a class="btn pri sm" href="${esc(o.url)}" target="_blank" rel="sponsored noopener" data-link>Ver oferta</a><button class="btn sec sm" data-share="${esc(o.url)}" data-n="${esc(o.t)} a ${eur(o.ahora)} (-${o.pct}%)" aria-label="Compartir">Compartir</button></div></div></article>`}
 function draw(){
   const q=$("q").value.toLowerCase().trim();
