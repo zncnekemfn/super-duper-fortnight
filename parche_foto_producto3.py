@@ -137,7 +137,7 @@ def _at_hacer(d, cid):
         paso("Fotograma del /video", f.size == (1080, 1080))
     except Exception as e:
         paso("Fotograma del /video", False, str(e)[:80])
-    paso("ffmpeg instalado", bool(shutil.which("ffmpeg")))
+    paso("ffmpeg instalado", bool(__import__("shutil").which("ffmpeg")))
     try:
         asin = None
         try:
