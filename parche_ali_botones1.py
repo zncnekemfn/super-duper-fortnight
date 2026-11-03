@@ -12,14 +12,13 @@ if len(anc) != 1:
     print("ABORTO: punto de entrada (%d)" % len(anc)); sys.exit(1)
 BLOQUE = r'''
 # --- ALIBOTONES1 ---
-# Botones 👍 TOP · 👎 FLOJA · 🔕 MENOS en las ofertas automaticas de AliExpress (usuarios y pruebas).
+# Botones 👍 TOP · 👎 FLOJA en las ofertas automaticas de AliExpress (usuarios y pruebas).
 # Votos aparte de los de Amazon (d["fb_ali"]). MENOS = dejar de recibir ofertas de AliExpress (/aliofertas on para volver).
 def _al_teclado(x):
     pid = str(x.get("id") or "x")[:40]
     return json.dumps({"inline_keyboard": [[
         {"text": "\U0001f44d TOP", "callback_data": "aly_up_" + pid},
-        {"text": "\U0001f44e FLOJA", "callback_data": "aly_dn_" + pid},
-        {"text": "\U0001f515 MENOS", "callback_data": "aly_no_" + pid}]]})
+        {"text": "\U0001f44e FLOJA", "callback_data": "aly_dn_" + pid}]]})
 
 def _al_enviar_foto(cid, datos, cap, teclado=None):
     data = {"chat_id": cid, "caption": cap, "parse_mode": "HTML"}
@@ -147,7 +146,7 @@ except SyntaxError as e:
 cp = RUTA + ".bak_alibotones_" + time.strftime("%Y%m%d%H%M%S")
 shutil.copy(RUTA, cp)
 open(RUTA, "w", encoding="utf-8").write(nuevo)
-print("Parche aplicado: botones TOP / FLOJA / MENOS en las ofertas de AliExpress.")
+print("Parche aplicado: botones TOP / FLOJA en las ofertas de AliExpress.")
 print("Copia:", cp)
 print("Reinicia: sudo systemctl restart chivato   y luego /aliauto probar")
 print("Deshacer: cp", cp, RUTA, "&& sudo systemctl restart chivato")
