@@ -35,7 +35,7 @@ def _al_tarjeta(cid, x, link, extra=""):
             img.save(ruta, "JPEG", quality=92)
             with open(ruta, "rb") as fh:
                 r = requests.post("https://api.telegram.org/bot%s/sendPhoto" % _vd_token(),
-                                  data={"chat_id": cid, "caption": cap[:1000], "parse_mode": "HTML"}, files={"photo": fh}, timeout=60)
+                                  data={"chat_id": cid, "caption": cap, "parse_mode": "HTML"}, files={"photo": fh}, timeout=60)
             if r.status_code != 200:
                 print("alienlace: telegram", r.status_code, r.text[:120], flush=True)
                 return _al_tarjeta_orig(cid, x, link, extra)
