@@ -25,16 +25,20 @@ def teclado_menu():
         filas = kb["inline_keyboard"]
         piezas = {}; resto = []
         for f in filas:
-            clave = None
-            if len(f) == 1:
-                t = str(f[0].get("text", "")).lower()
-                for k, _ in _M2_BOTONES:
-                    if k in t and not f[0].get("url"):
-                        clave = k; break
-            if clave and clave not in piezas:
-                piezas[clave] = f[0]
-            else:
-                resto.append(f)
+            quedan = []
+            for b in f:
+                t = str(b.get("text", "")).lower()
+                clave = None
+                if not b.get("url"):
+                    for k, _ in _M2_BOTONES:
+                        if k in t:
+                            clave = k; break
+                if clave and clave not in piezas:
+                    piezas[clave] = b
+                else:
+                    quedan.append(b)
+            if quedan:
+                resto.append(quedan)
         if not piezas:
             return json.dumps(kb)
         orden = []
