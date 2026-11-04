@@ -1,0 +1,32 @@
+name: Kronos BTC
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: kronos
+jobs:
+  prever:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar Kronos
+        run: |
+          git clone --depth 1 https://github.com/shiyu-coder/Kronos.git Kronos
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          grep -v -i '^torch' Kronos/requirements.txt > req.txt
+          pip install -r req.txt
+      - name: Prevision
+        run: python prevision.py
+      - name: Guardar
+        run: |
+          git config user.name "solradar-bot"
+          git config user.email "solradar-bot@users.noreply.github.com"
+          git add kronos/btc.json
+          git commit -m "Prevision Kronos BTC [skip ci]" || echo "sin cambios"
+          git pull --rebase && git push
