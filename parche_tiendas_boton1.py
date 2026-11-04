@@ -35,7 +35,7 @@ def hook_menu(d, u):
                 pass
             cid = str(cq["from"]["id"])
             us = d["users"].setdefault(cid, nuevo_usuario())
-            enviar(cq["from"]["id"], _td_texto(us), _td_teclado(us))
+            enviar(cq["from"]["id"], _ti_texto(us), _ti_teclado(us))
             return True
     except Exception as e:
         print("error boton tiendas", str(e)[:100], flush=True)

@@ -14,14 +14,14 @@ BLOQUE = r'''
 # --- TIENDAS1 ---
 # /tiendas: cada usuario elige de que tiendas quiere avisos (Amazon, AliExpress).
 # Amazon: se filtra en enviar_aviso. AliExpress: marca ali_off (ya la respeta el envio automatico).
-def _td_teclado(us):
+def _ti_teclado(us):
     am = not (us or {}).get("amazon_off")
     al = not (us or {}).get("ali_off")
     return json.dumps({"inline_keyboard": [[
         {"text": ("✅ " if am else "⬜ ") + "Amazon", "callback_data": "tnd_am"},
         {"text": ("✅ " if al else "⬜ ") + "AliExpress", "callback_data": "tnd_al"}]]})
 
-def _td_texto(us):
+def _ti_texto(us):
     am = not (us or {}).get("amazon_off")
     al = not (us or {}).get("ali_off")
     t = "\U0001f3ec TIENDAS\n\nElige de qué tiendas quieres recibir avisos de ofertas y bajadas de precio. Toca para activar o desactivar.\n\nAhora: %s" % (
@@ -30,7 +30,7 @@ def _td_texto(us):
         t += "\n\n⚠ Con las dos desactivadas no recibirás avisos de ofertas."
     return t
 
-_td_aviso_orig = enviar_aviso
+_ti_aviso_orig = enviar_aviso
 def enviar_aviso(d, cid, item):
     try:
         us = (d.get("users") or {}).get(cid) or (d.get("users") or {}).get(str(cid)) or {}
@@ -38,9 +38,9 @@ def enviar_aviso(d, cid, item):
             return
     except Exception as e:
         print("error tiendas", str(e)[:80], flush=True)
-    return _td_aviso_orig(d, cid, item)
+    return _ti_aviso_orig(d, cid, item)
 
-_td_hook_orig = hook_anuncios_pago
+_ti_hook_orig = hook_anuncios_pago
 def hook_anuncios_pago(d, u):
     try:
         cq = u.get("callback_query")
@@ -58,18 +58,18 @@ def hook_anuncios_pago(d, u):
                 us["ali_off"] = not us.get("ali_off")
             requests.post(API + "/editMessageText", data={"chat_id": cid,
                 "message_id": (cq.get("message") or {}).get("message_id"),
-                "text": _td_texto(us), "reply_markup": _td_teclado(us)}, timeout=15)
+                "text": _ti_texto(us), "reply_markup": _ti_teclado(us)}, timeout=15)
             return True
         m = u.get("message")
         t = ((m.get("text") or "") if m else "").strip()
         if m and t and t.split()[0].lower().split("@")[0] == "/tiendas":
             cid = str(m["chat"]["id"])
             us = d["users"].setdefault(cid, nuevo_usuario())
-            enviar(m["chat"]["id"], _td_texto(us), _td_teclado(us))
+            enviar(m["chat"]["id"], _ti_texto(us), _ti_teclado(us))
             return True
     except Exception as e:
         print("error hook tiendas", str(e)[:100], flush=True)
-    return _td_hook_orig(d, u)
+    return _ti_hook_orig(d, u)
 '''
 nuevo = src[:anc[0].start()] + BLOQUE + "\n" + src[anc[0].start():]
 try: compile(nuevo, "bot.py", "exec")
