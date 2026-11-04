@@ -2,8 +2,16 @@ import re, shutil, sys, time
 RUTA = sys.argv[1] if len(sys.argv) > 1 else "/opt/chivato/bot.py"
 MARCA = "# --- RESUMENFOTO1 ---"
 src = open(RUTA, encoding="utf-8").read()
+actualizando = False
 if MARCA in src:
-    print("Ya estaba aplicado. No hago nada."); sys.exit(0)
+    i0 = src.index(MARCA)
+    m0 = re.search(r'(?m)^if __name__ == ["\']__main__["\']:', src[i0:])
+    if not m0:
+        print("ABORTO: no encuentro donde acaba la version anterior."); sys.exit(1)
+    if "_rf_texto" in src[i0:i0 + m0.start()] and "def _rf_render(items, fotos, fecha, capricho=None)" in src[i0:i0 + m0.start()] and "ordenados por ahorro" in src[i0:i0 + m0.start()]:
+        print("Ya estaba aplicado (ultima version). No hago nada."); sys.exit(0)
+    src = src[:i0].rstrip("\n") + "\n\n" + src[i0 + m0.start():]
+    actualizando = True
 for n in ("def _a_tarea(", "def _mi_d(", "def _cn_foto(", "def _vd_token(", "def enviar(", "def _a_ahora("):
     if n not in src:
         print("ABORTO: falta", n); sys.exit(1)
@@ -103,77 +111,88 @@ def _rf_vidrio(img, caja, radio, tinte=(255, 255, 255, 24), borde=(255, 255, 255
 def _rf_render(items, fotos, fecha, capricho=None):
     from PIL import Image, ImageDraw, ImageFilter
     W = 1080
-    y0, alto, sep = 306, 136, 14
     n = len(items)
-    ty = y0 + n * (alto + sep) + 6
-    cy2 = ty + 96 + 16
-    H = (cy2 + 100 + 40 + 130) if capricho else 1350
+    hy = 290
+    ry = hy + 270 + 20
+    nfil = max(n - 1, 0)
+    ty = ry + nfil * 112 + 8
+    cy2 = ty + 90 + 16
+    fin = (cy2 + 100) if capricho else (ty + 90)
+    H = fin + 40 + 130
     img = Image.new("RGBA", (W, H), (13, 10, 9, 255))
     luz = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     ld = ImageDraw.Draw(luz)
-    for cx, cy, r, col in ((880, 260, 330, (190, 100, 34, 200)), (120, 600, 260, (232, 168, 96, 120)),
-                           (900, 900, 300, (201, 121, 46, 150)), (200, H - 230, 280, (150, 80, 30, 170)),
+    for cx, cy, r, col in ((880, 260, 330, (190, 100, 34, 200)), (120, 700, 260, (232, 168, 96, 110)),
+                           (900, 1000, 300, (201, 121, 46, 140)), (200, H - 230, 280, (150, 80, 30, 170)),
                            (560, 120, 200, (232, 168, 96, 80))):
         ld.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
     luz = luz.filter(ImageFilter.GaussianBlur(120))
     img.alpha_composite(luz)
-    ORO, BLANCO, GRIS = (232, 168, 96), (246, 237, 226), (190, 178, 166)
+    ORO, BLANCO, GRIS, VERDE = (232, 168, 96), (246, 237, 226), (190, 178, 166), (61, 220, 151)
+    cajas = [((60, hy, W - 60, hy + 270), 30, (255, 255, 255, 34), (240, 190, 120, 160))]
+    for i in range(nfil):
+        y = ry + i * 112
+        cajas.append(((60, y, W - 60, y + 100), 24, (255, 255, 255, 24), (255, 255, 255, 80)))
+    cajas.append(((60, ty, W - 60, ty + 90), 24, (232, 168, 96, 46), (240, 190, 120, 190)))
+    if capricho:
+        cajas.append(((60, cy2, W - 60, cy2 + 100), 24, (61, 220, 151, 22), (120, 230, 180, 120)))
     som = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     sd = ImageDraw.Draw(som)
-    for i in range(n):
-        y = y0 + i * (alto + sep)
-        sd.rounded_rectangle([64, y + 12, W - 64, y + alto + 12], 26, fill=(0, 0, 0, 120))
-    sd.rounded_rectangle([64, ty + 12, W - 64, ty + 108], 26, fill=(0, 0, 0, 120))
-    if capricho:
-        sd.rounded_rectangle([64, cy2 + 12, W - 64, cy2 + 112], 26, fill=(0, 0, 0, 120))
+    for caja, rad, _t, _b in cajas:
+        sd.rounded_rectangle([caja[0] + 4, caja[1] + 12, caja[2] - 4, caja[3] + 12], rad, fill=(0, 0, 0, 120))
     img.alpha_composite(som.filter(ImageFilter.GaussianBlur(14)))
-    _rf_vidrio(img, (W - 60 - 300, 38, W - 60, 90), 26, tinte=(255, 255, 255, 20))
-    for i in range(n):
-        y = y0 + i * (alto + sep)
-        _rf_vidrio(img, (60, y, W - 60, y + alto), 26)
-    _rf_vidrio(img, (60, ty, W - 60, ty + 96), 26, tinte=(232, 168, 96, 46), borde=(240, 190, 120, 190))
-    if capricho:
-        _rf_vidrio(img, (60, cy2, W - 60, cy2 + 100), 26, tinte=(61, 220, 151, 22), borde=(120, 230, 180, 120))
+    for caja, rad, t, b in cajas:
+        _rf_vidrio(img, caja, rad, tinte=t, borde=b)
     img = img.convert("RGB")
     dr = ImageDraw.Draw(img)
-    dr.text((60, 52), "CHIVATO DE OFERTAS", font=_rf_fuente("DejaVuSans-Bold.ttf", 28), fill=ORO)
-    dr.text((W - 60 - 150, 64), "Resumen · " + fecha, font=_rf_fuente("DejaVuSans-Bold.ttf", 25), fill=BLANCO, anchor="mm")
-    f_t = _rf_fuente("DejaVuSerif-Bold.ttf", 90)
-    dr.text((60, 120), "Lo mejor ", font=f_t, fill=BLANCO)
-    dr.text((60 + dr.textlength("Lo mejor ", font=f_t), 120), "del día", font=f_t, fill=ORO)
-    dr.text((62, 238), "Las ofertas que más ahorran, con enlace en el mensaje", font=_rf_fuente("DejaVuSans.ttf", 29), fill=GRIS)
-    medallas = [(240, 190, 40), (205, 205, 215), (214, 150, 90), (70, 60, 52), (70, 60, 52)]
-    f_n = _rf_fuente("DejaVuSans-Bold.ttf", 31); f_s = _rf_fuente("DejaVuSans.ttf", 24)
-    f_pr = _rf_fuente("DejaVuSans-Bold.ttf", 44); f_pi = _rf_fuente("DejaVuSans-Bold.ttf", 24)
-    total = 0.0
-    for i, it in enumerate(items):
-        y = y0 + i * (alto + sep)
-        cx, cy = 112, y + alto // 2
-        dr.ellipse([cx - 31, cy - 31, cx + 31, cy + 31], fill=medallas[i], outline=(255, 255, 255), width=1)
-        dr.text((cx, cy), str(i + 1), font=_rf_fuente("DejaVuSans-Bold.ttf", 32), fill=(20, 14, 10) if i < 3 else BLANCO, anchor="mm")
-        dr.rounded_rectangle([164, y + 16, 164 + 104, y + 16 + 104], 16, fill=(255, 255, 255))
+    dr.text((60, 56), "Chivato de Ofertas", font=_rf_fuente("DejaVuSans-Bold.ttf", 30), fill=ORO)
+    dr.text((W - 60, 70), fecha, font=_rf_fuente("DejaVuSans.ttf", 28), fill=GRIS, anchor="rm")
+    dr.text((60, 118), "Lo mejor del día", font=_rf_fuente("DejaVuSerif-Bold.ttf", 92), fill=BLANCO)
+    dr.text((62, 236), "%d chollos, ordenados por ahorro" % n, font=_rf_fuente("DejaVuSans.ttf", 30), fill=GRIS)
+    total = sum(it["b"] - it["a"] for it in items)
+    if items:
+        h = items[0]
+        dr.rounded_rectangle([96, hy + 40, 96 + 190, hy + 40 + 190], 22, fill=(255, 255, 255))
+        ft = fotos.get(h["asin"])
+        if ft is not None:
+            ft = ft.copy(); ft.thumbnail((176, 176))
+            img.paste(ft, (96 + (190 - ft.width) // 2, hy + 40 + (190 - ft.height) // 2))
+            ft.close()
+        dr.text((320, hy + 38), "1.º", font=_rf_fuente("DejaVuSans-Bold.ttf", 28), fill=ORO)
+        f_h = _rf_fuente("DejaVuSans-Bold.ttf", 38)
+        for k, linea in enumerate(_rf_ajusta(dr, h["t"], f_h, 330, 2)):
+            dr.text((320, hy + 76 + k * 46), linea, font=f_h, fill=BLANCO)
+        dr.text((320, hy + 196), "Amazon, antes " + _rf_eur(h["b"]), font=_rf_fuente("DejaVuSans.ttf", 24), fill=GRIS)
+        dr.text((W - 96, hy + 30), _rf_eur(h["a"]), font=_rf_fuente("DejaVuSans-Bold.ttf", 74), fill=ORO, anchor="ra")
+        tx = "ahorras %d €" % round(h["b"] - h["a"])
+        f_pi = _rf_fuente("DejaVuSans-Bold.ttf", 30)
+        wt = dr.textlength(tx, font=f_pi)
+        dr.rounded_rectangle([W - 96 - wt - 36, hy + 148, W - 96, hy + 200], 14, fill=VERDE)
+        dr.text((W - 96 - wt - 18, hy + 156), tx, font=f_pi, fill=(8, 40, 26))
+        dr.text((W - 96, hy + 232), "%d %% menos" % h["pct"], font=_rf_fuente("DejaVuSans.ttf", 26), fill=VERDE, anchor="rm")
+    f_n = _rf_fuente("DejaVuSans-Bold.ttf", 28); f_s = _rf_fuente("DejaVuSans.ttf", 21)
+    for i, it in enumerate(items[1:]):
+        y = ry + i * 112
+        dr.text((100, y + 50), str(i + 2), font=_rf_fuente("DejaVuSans-Bold.ttf", 32), fill=GRIS, anchor="mm")
+        dr.rounded_rectangle([136, y + 14, 136 + 72, y + 14 + 72], 14, fill=(255, 255, 255))
         ft = fotos.get(it["asin"])
         if ft is not None:
-            ft = ft.copy(); ft.thumbnail((96, 96))
-            img.paste(ft, (164 + (104 - ft.width) // 2, y + 16 + (104 - ft.height) // 2))
+            ft = ft.copy(); ft.thumbnail((64, 64))
+            img.paste(ft, (136 + (72 - ft.width) // 2, y + 14 + (72 - ft.height) // 2))
             ft.close()
-        for k, linea in enumerate(_rf_ajusta(dr, it["t"], f_n, 470, 2)):
-            dr.text((292, y + 20 + k * 38), linea, font=f_n, fill=BLANCO)
-        dr.text((292, y + 98), "Amazon · antes " + _rf_eur(it["b"]), font=f_s, fill=GRIS)
-        dr.text((W - 76, y + 16), _rf_eur(it["a"]), font=f_pr, fill=ORO, anchor="ra")
-        ahorro = it["b"] - it["a"]; total += ahorro
-        tx = "-%d € · %d %%" % (round(ahorro), it["pct"])
-        wt = dr.textlength(tx, font=f_pi)
-        dr.rounded_rectangle([W - 76 - wt - 28, y + 84, W - 76, y + 122], 12, fill=(61, 220, 151))
-        dr.text((W - 76 - wt - 14, y + 90), tx, font=f_pi, fill=(8, 40, 26))
-    dr.text((90, ty + 48), "Si te llevaras los %d, ahorrarías" % n, font=_rf_fuente("DejaVuSans-Bold.ttf", 32), fill=BLANCO, anchor="lm")
-    dr.text((W - 90, ty + 48), "%d €" % round(total), font=_rf_fuente("DejaVuSans-Bold.ttf", 50), fill=ORO, anchor="rm")
+        lin = _rf_ajusta(dr, it["t"], f_n, 440, 1)
+        dr.text((232, y + 20), lin[0] if lin else "", font=f_n, fill=BLANCO)
+        dr.text((232, y + 60), "Amazon, antes " + _rf_eur(it["b"]), font=f_s, fill=GRIS)
+        dr.text((W - 90, y + 12), _rf_eur(it["a"]), font=_rf_fuente("DejaVuSans-Bold.ttf", 38), fill=ORO, anchor="ra")
+        dr.text((W - 90, y + 64), "ahorras %d € (−%d %%)" % (round(it["b"] - it["a"]), it["pct"]), font=_rf_fuente("DejaVuSans.ttf", 22), fill=VERDE, anchor="ra")
+    dr.text((90, ty + 45), "Si te llevaras los %d, ahorrarías" % n, font=_rf_fuente("DejaVuSans-Bold.ttf", 32), fill=BLANCO, anchor="lm")
+    dr.text((W - 90, ty + 45), "%d €" % round(total), font=_rf_fuente("DejaVuSans-Bold.ttf", 50), fill=ORO, anchor="rm")
     if capricho:
-        dr.text((90, cy2 + 28), "EL CAPRICHO DEL DÍA", font=_rf_fuente("DejaVuSans-Bold.ttf", 22), fill=(61, 220, 151), anchor="lm")
+        dr.text((90, cy2 + 28), "El capricho del día", font=_rf_fuente("DejaVuSans-Bold.ttf", 22), fill=VERDE, anchor="lm")
         nom = _rf_ajusta(dr, capricho["t"], _rf_fuente("DejaVuSans-Bold.ttf", 31), 560, 1)
         dr.text((90, cy2 + 68), nom[0] if nom else "", font=_rf_fuente("DejaVuSans-Bold.ttf", 31), fill=BLANCO, anchor="lm")
         dr.text((W - 90, cy2 + 38), _rf_eur(capricho["a"]), font=_rf_fuente("DejaVuSans-Bold.ttf", 42), fill=ORO, anchor="rm")
-        dr.text((W - 90, cy2 + 76), "antes %s · -%d %%" % (_rf_eur(capricho["b"]), capricho["pct"]), font=_rf_fuente("DejaVuSans.ttf", 23), fill=GRIS, anchor="rm")
+        dr.text((W - 90, cy2 + 76), "antes %s, −%d %%" % (_rf_eur(capricho["b"]), capricho["pct"]), font=_rf_fuente("DejaVuSans.ttf", 23), fill=GRIS, anchor="rm")
     fy = H - 130
     banda = Image.new("RGB", (W, 130))
     bd = ImageDraw.Draw(banda)
@@ -184,7 +203,7 @@ def _rf_render(items, fotos, fecha, capricho=None):
     dr = ImageDraw.Draw(img)
     dr.line([0, fy, W, fy], fill=(255, 220, 170), width=2)
     dr.text((60, fy + 38), "Más ofertas gratis en @ChivatoOfertas_bot", font=_rf_fuente("DejaVuSans-Bold.ttf", 36), fill=(20, 12, 6), anchor="lm")
-    dr.text((60, fy + 92), "Precios del momento del aviso · Pueden cambiar · Enlaces de afiliado", font=_rf_fuente("DejaVuSans.ttf", 22), fill=(40, 24, 10), anchor="lm")
+    dr.text((60, fy + 92), "Precios del momento del aviso. Pueden cambiar. Enlaces de afiliado.", font=_rf_fuente("DejaVuSans.ttf", 22), fill=(40, 24, 10), anchor="lm")
     return img
 
 def _rf_enlace(asin):
@@ -285,7 +304,7 @@ except SyntaxError as e:
 cp = RUTA + ".bak_resumenfoto_" + time.strftime("%Y%m%d%H%M%S")
 shutil.copy2(RUTA, cp)
 open(RUTA, "w", encoding="utf-8").write(nuevo)
-print("Parche aplicado: el resumen diario lleva ahora una foto con las 5 mejores ofertas.")
+print("Parche %s: el resumen diario lleva una foto con las 5 mejores ofertas." % ("actualizado" if actualizando else "aplicado"))
 print("Copia:", cp)
 print("Reinicia: sudo systemctl restart chivato")
 print("Deshacer: cp %s %s && sudo systemctl restart chivato" % (cp, RUTA))
