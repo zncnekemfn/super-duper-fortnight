@@ -13,6 +13,22 @@ def clave():
     k = os.environ.get("KEEPA_KEY", "")
     if k:
         return k
+    # El bot la carga de este archivo al arrancar (funcion cargar_env de bot.py).
+    for ruta in (os.environ.get("CHIVATO_ENV", ""), "/opt/chivato/.env"):
+        if not ruta or not os.path.exists(ruta):
+            continue
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                for linea in f:
+                    linea = linea.strip()
+                    if linea.startswith("export "):
+                        linea = linea[7:].strip()
+                    if linea.startswith("KEEPA_KEY") and "=" in linea:
+                        nombre, valor = linea.split("=", 1)
+                        if nombre.strip() == "KEEPA_KEY":
+                            return valor.strip().strip('"').strip("'")
+        except Exception as e:
+            print("No pude leer", ruta, ":", e)
     try:
         pid = subprocess.check_output(
             ["systemctl", "show", "chivato", "-p", "MainPID", "--value"], text=True
