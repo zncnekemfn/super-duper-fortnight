@@ -5,7 +5,9 @@ if not os.path.exists(idx):
     print("ABORTO: no encuentro", idx); sys.exit(1)
 h = open(idx, encoding="utf-8").read()
 if "GSAPMINI1" in h:
-    print("Ya estaba aplicado. No hago nada."); sys.exit(0)
+    a = h.index("<!--GSAPMINI1-->"); b = h.index("</script>", a) + len("</script>")
+    h = h[:a] + h[b:].lstrip("\n")
+    print("Versión anterior retirada, aplico la nueva.")
 if "</body>" not in h or 'id="list"' not in h:
     print("ABORTO: la mini app no tiene la estructura esperada"); sys.exit(1)
 JS = r"""<!--GSAPMINI1-->
@@ -24,7 +26,6 @@ var c=box.querySelectorAll(".card");if(!c.length)return;
 var now=Date.now();if(now-last<220){return}last=now;
 var l=Array.prototype.slice.call(c,0,10);
 g.from(l,{y:26,opacity:0,scale:.97,duration:.5,stagger:.055,ease:"power3.out",clearProps:"transform,opacity"});
-l.forEach(function(x){var b=x.querySelector(".bar i");if(b){var w=b.style.width;g.fromTo(b,{width:"0%"},{width:w,duration:.8,delay:.15,ease:"power2.out"})}});
 }
 function hero(box){
 var e=box.querySelector(".hero");if(!e)return;
