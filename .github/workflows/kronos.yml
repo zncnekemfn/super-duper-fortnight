@@ -23,10 +23,12 @@ jobs:
           pip install -r req.txt
       - name: Prevision
         run: python prevision.py
+      - name: Simulacion en papel
+        run: python paper_kronos.py
       - name: Guardar
         run: |
           git config user.name "solradar-bot"
           git config user.email "solradar-bot@users.noreply.github.com"
-          git add kronos/btc.json
+          git add kronos/btc.json kronos/paper.json
           git commit -m "Prevision Kronos BTC [skip ci]" || echo "sin cambios"
           git pull --rebase && git push

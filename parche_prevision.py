@@ -79,6 +79,7 @@ BLOQUE = INI + "\n" + r"""<style id="sr-kronos">
       grafica(d) +
       '<div class="krn-ley"><span><i style="background:var(--text,#3b2414)"></i>últimas 48 h</span><span><i style="background:' + col + '"></i>previsión</span><span><i style="background:' + col + ';opacity:.3;height:8px"></i>margen</span></div>' +
       '<div class="krn-ac"><div><span>Aciertos de dirección</span><b>' + (ev ? (ac.acertadas + " de " + ev + " (" + Math.round(100 * ac.acertadas / ev) + "%)") : "aún sin datos") + '</b></div>' +
+      (d.paper ? '<div style="grid-column:1/-1"><span>Simulación 10.000 $ (de mentira)</span><b>Kronos ' + (d.paper.kronos_pct >= 0 ? "+" : "−") + n(Math.abs(d.paper.kronos_pct), 1) + '% · aguantar ' + (d.paper.aguantar_pct >= 0 ? "+" : "−") + n(Math.abs(d.paper.aguantar_pct), 1) + '%</b></div>' : "") +
       '<div><span>Actualizada</span><b>' + (hace < 1 ? "hace menos de 1 h" : "hace " + hace + " h") + "</b></div></div>" +
       '<div class="krn-aviso">Modelo open source Kronos (velas de ' + (d.fuente || "Kraken") + "). Es una estimación estadística, no una señal de compra ni de venta. " +
       (ev ? "Un 50% de aciertos sería igual que tirar una moneda." : "Los aciertos se cuentan 24 h después de cada previsión.") + "</div></div>";
