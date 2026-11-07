@@ -65,13 +65,13 @@ def revisar():
 
     # 3) ofertas de las ultimas 24 h (registro del bot)
     log = sh('journalctl -u chivato --since "-24h" --no-pager -o cat')
-    nuevos = sum(int(n) for n in re.findall(r"nuevos: (\d+)", log))
-    avisos = sum(int(n) for n in re.findall(r"avisos: (\d+)", log))
+    nuevos = sum(int(n) for n in re.findall(r"keepa ok, nuevos: (\d+)", log))
+    avisos = sum(int(n) for n in re.findall(r"keepa errores ok, avisos: (\d+)", log))
     vueltas = len(re.findall(r"keepa ok", log))
     errores = len(re.findall(r"Traceback", log))
     if vueltas == 0:
         mal.append("Keepa no ha hecho ninguna búsqueda en 24 h ❌")
-    info.append("Ofertas nuevas en 24 h: %d (avisos: %d)" % (nuevos, avisos))
+    info.append("Ofertas nuevas en 24 h: %d (reavisos de errores de precio: %d)" % (nuevos, avisos))
     if errores:
         info.append("Errores en el registro: %d (míralo si sube mucho)" % errores)
     toks = re.findall(r"keepa tokens: (\d+)", log)
