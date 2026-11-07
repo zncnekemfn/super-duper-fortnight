@@ -19,12 +19,12 @@ def _h9b_veredicto(serie, antes, ahora):
     med = vals[len(vals) // 2]
     mn = min(vals + [ahora])
     if med < 0.70 * antes:
-        return ("PRECIO ANTES INFLADO", (255, 150, 120), (80, 30, 24, 200), (255, 150, 120, 200))
+        return ("PRECIO ANTES INFLADO", (255, 140, 110), (70, 24, 18, 210), (255, 140, 110, 210))
     if ahora <= mn * 1.03 and med >= 0.80 * antes:
-        return ("OFERTA REAL · MÍNIMO 90 DÍAS", (130, 255, 220), (20, 70, 60, 200), (120, 255, 214, 200))
+        return ("OFERTA REAL · MÍNIMO 90 DÍAS", (243, 197, 138), (60, 40, 20, 200), (236, 170, 98, 220))
     if med >= 0.80 * antes:
-        return ("DESCUENTO REAL", (150, 255, 225), (20, 64, 62, 180), (120, 255, 214, 160))
-    return ("OFERTA DUDOSA", (255, 214, 120), (70, 54, 16, 200), (255, 214, 120, 200))
+        return ("DESCUENTO REAL", (243, 197, 138), (60, 40, 20, 170), (236, 170, 98, 170))
+    return ("OFERTA DUDOSA", (225, 218, 210), (45, 38, 34, 210), (200, 190, 180, 200))
 
 def _cn_frame(dat, t=0.0, total=6.0, still=True):
     img = _h9b_pre(dat, t, total, still)

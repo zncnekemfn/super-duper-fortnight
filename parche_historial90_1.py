@@ -64,8 +64,8 @@ def _h9_capa(serie, actual):
     if mx - mn < 0.01:
         mx = mn + 1.0
     L = Image.new("RGBA", (w, h), (0, 0, 0, 0)); g = ImageDraw.Draw(L)
-    g.rounded_rectangle((0, 0, w - 1, h - 1), 26, fill=(9, 11, 17, 185), outline=(255, 255, 255, 45), width=2)
-    g.text((22, 20), "ÚLTIMOS 90 DÍAS", font=_cn_mono(17), fill=(205, 210, 224), anchor="lm")
+    g.rounded_rectangle((0, 0, w - 1, h - 1), 26, fill=(13, 10, 9, 185), outline=(236, 170, 98, 60), width=2)
+    g.text((22, 20), "ÚLTIMOS 90 DÍAS", font=_cn_mono(17), fill=(243, 197, 138), anchor="lm")
     x0, x1, y0, y1 = 24, w - 215, 44, h - 20
     def px(i): return x0 + (x1 - x0) * i / 90.0
     def py(v): return y1 - (y1 - y0) * (v - mn) / (mx - mn)
@@ -74,13 +74,13 @@ def _h9_capa(serie, actual):
         if v is not None: pts.append((px(i), py(v)))
     pts.append((x1, py(actual)))
     area = Image.new("RGBA", (w, h), (0, 0, 0, 0)); ad = ImageDraw.Draw(area)
-    ad.polygon(pts + [(pts[-1][0], y1), (pts[0][0], y1)], fill=(120, 255, 214, 38))
+    ad.polygon(pts + [(pts[-1][0], y1), (pts[0][0], y1)], fill=(236, 170, 98, 40))
     L.alpha_composite(area); g = ImageDraw.Draw(L)
-    g.line(pts, fill=(130, 255, 220, 255), width=4, joint="curve")
-    g.ellipse((x1 - 9, py(actual) - 9, x1 + 9, py(actual) + 9), fill=(9, 11, 17, 255), outline=(130, 255, 220, 255), width=4)
+    g.line(pts, fill=(236, 170, 98, 255), width=4, joint="curve")
+    g.ellipse((x1 - 9, py(actual) - 9, x1 + 9, py(actual) + 9), fill=(13, 10, 9, 255), outline=(236, 170, 98, 255), width=4)
     e = lambda v: ("%.2f" % v).replace(".", ",") + " €"
     g.text((w - 24, 44), "máx " + e(max(vals)), font=_cn_sans(22, False), fill=(160, 168, 185), anchor="rm")
-    g.text((w - 24, 82), "ahora " + e(actual), font=_cn_sans(26), fill=(130, 255, 220), anchor="rm")
+    g.text((w - 24, 82), "ahora " + e(actual), font=_cn_sans(26), fill=(236, 170, 98), anchor="rm")
     g.text((w - 24, 120), "mín " + e(min(vals)), font=_cn_sans(22, False), fill=(160, 168, 185), anchor="rm")
     return L
 
